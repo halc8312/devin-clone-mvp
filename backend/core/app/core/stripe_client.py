@@ -11,8 +11,12 @@ from app.models.subscription import SubscriptionStatus
 
 logger = logging.getLogger(__name__)
 
-# Initialize Stripe
-stripe.api_key = settings.STRIPE_SECRET_KEY
+# Initialize Stripe only if configured
+if settings.STRIPE_SECRET_KEY and settings.STRIPE_SECRET_KEY != "":
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+else:
+    logger.warning("Stripe is not configured. Payment features will be disabled.")
+    stripe.api_key = None
 
 
 class StripeClient:
