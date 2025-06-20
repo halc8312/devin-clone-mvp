@@ -1,0 +1,60 @@
+services:
+  # Backend API Service
+  - type: web
+    name: devin-clone-api
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: devin-clone-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: devin-clone-redis
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID_PRO_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_ID_PRO_YEARLY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://devin-clone.vercel.app
+      - key: BACKEND_CORS_ORIGINS
+        value: https://devin-clone.vercel.app,https://www.devin-clone.vercel.app
+    autoDeploy: true
+    healthCheckPath: /api/v1/health
+    
+  # Background Worker (if needed)
+  - type: worker
+    name: devin-clone-worker
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python -m app.worker"
+    envVars:
+      - fromGroup: devin-clone-api
+
+databases:
+  - name: devin-clone-db
+    databaseName: devinclone
+    user: devinclone
+    plan: starter
+    
+services:
+  - type: redis
+    name: devin-clone-redis
+    plan: starter
+    maxmemoryPolicy: allkeys-lru

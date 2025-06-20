@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output
+htmlcov/
+.coverage
+
+# Misc
+*.pem
+.vercel
+.render
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/

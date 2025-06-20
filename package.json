@@ -1,0 +1,21 @@
+{
+  "name": "devin-clone-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered software engineering assistant",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "lint": "pnpm --filter frontend lint",
+    "type-check": "pnpm --filter frontend type-check",
+    "test": "pnpm --filter frontend test"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.1"
+}
