@@ -7,6 +7,22 @@
 # 4. Deploy!
 
 services:
+  - type: web
+    name: devin-clone-frontend
+    runtime: node
+    rootDir: .
+    buildCommand: "corepack enable && pnpm install && pnpm build"
+    startCommand: "cd frontend && pnpm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://devin-clone-api.onrender.com
+      - key: NEXT_PUBLIC_ENABLE_PAYMENTS
+        value: "false"
+      - key: NEXT_PUBLIC_ENABLE_OAUTH
+        value: "false"
+
   # Backend API Service
   - type: web
     name: devin-clone-api
