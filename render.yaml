@@ -1,11 +1,17 @@
-# MVP Configuration - Minimal setup for Render.com
-# Just connect your GitHub repo and set ANTHROPIC_API_KEY in the dashboard
+# Devin Clone MVP - One-Click Render.com Deployment
+# 
+# SETUP INSTRUCTIONS:
+# 1. Fork this repository to your GitHub account
+# 2. Connect your GitHub repo to Render.com
+# 3. Add ANTHROPIC_API_KEY in Render dashboard
+# 4. Deploy!
 
 services:
   # Backend API Service
   - type: web
     name: devin-clone-api
     runtime: python
+    rootDir: backend/core
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
@@ -21,27 +27,32 @@ services:
           name: devin-clone-db
           property: connectionString
       
-      # Only required manual setting - Add this in Render dashboard
+      # ONLY MANUAL SETTING REQUIRED:
+      # Add this in Render.com dashboard after deployment
       - key: ANTHROPIC_API_KEY
         sync: false
       
-      # Auto-configured URLs (update these after Vercel deployment)
+      # Auto-configured URLs (will be updated after Vercel deployment)
       - key: FRONTEND_URL
         value: https://your-app.vercel.app
       - key: BACKEND_CORS_ORIGINS
         value: https://your-app.vercel.app
       
-      # MVP: Disabled features (no setup required)
+      # MVP: Payment and OAuth disabled (no setup required)
+      - key: STRIPE_SECRET_KEY
+        value: ""
+      - key: STRIPE_WEBHOOK_SECRET
+        value: ""
       - key: NEXT_PUBLIC_ENABLE_PAYMENTS
-        value: false
+        value: "false"
       - key: NEXT_PUBLIC_ENABLE_OAUTH
-        value: false
+        value: "false"
         
     autoDeploy: true
     healthCheckPath: /api/v1/health
 
 databases:
-  # Auto-created PostgreSQL database
+  # Auto-created PostgreSQL database (free tier)
   - name: devin-clone-db
     databaseName: devinclone
     user: devinclone
