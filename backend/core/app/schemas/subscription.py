@@ -2,7 +2,7 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from app.models.subscription import SubscriptionStatus, PaymentStatus
 
@@ -29,7 +29,7 @@ class PriceProduct(PriceProductBase):
     stripe_product_id: str
     active: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -65,7 +65,7 @@ class Subscription(SubscriptionBase):
     stripe_product_id: str
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -93,7 +93,7 @@ class Payment(PaymentBase):
     receipt_url: Optional[str]
     created_at: datetime
     paid_at: Optional[datetime]
-    
+
     class Config:
         from_attributes = True
 
@@ -136,13 +136,14 @@ class WebhookEvent(WebhookEventBase):
     error: Optional[str]
     created_at: datetime
     processed_at: Optional[datetime]
-    
+
     class Config:
         from_attributes = True
 
 
 class SubscriptionInfo(BaseModel):
     """Combined subscription info for frontend"""
+
     has_subscription: bool
     subscription: Optional[Subscription] = None
     current_plan: str  # "free" or "pro"

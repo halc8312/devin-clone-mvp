@@ -3,7 +3,7 @@ from typing import Any, Union, Optional
 import secrets
 import uuid
 
-from jose import jwt, JWTError
+from jose import jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
@@ -17,9 +17,9 @@ SECRET_KEY = settings.SECRET_KEY
 
 
 def create_access_token(
-    subject: Union[str, Any], 
+    subject: Union[str, Any],
     expires_delta: Optional[timedelta] = None,
-    additional_claims: Optional[dict] = None
+    additional_claims: Optional[dict] = None,
 ) -> tuple[str, str]:
     """
     Create JWT access token with JTI
@@ -31,25 +31,19 @@ def create_access_token(
         expire = datetime.utcnow() + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    
+
     jti = str(uuid.uuid4())
-    to_encode = {
-        "exp": expire, 
-        "sub": str(subject),
-        "type": "access",
-        "jti": jti
-    }
-    
+    to_encode = {"exp": expire, "sub": str(subject), "type": "access", "jti": jti}
+
     if additional_claims:
         to_encode.update(additional_claims)
-    
+
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt, jti
 
 
 def create_refresh_token(
-    subject: Union[str, Any],
-    expires_delta: Optional[timedelta] = None
+    subject: Union[str, Any], expires_delta: Optional[timedelta] = None
 ) -> str:
     """
     Create JWT refresh token
@@ -57,18 +51,16 @@ def create_refresh_token(
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(
-            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-        )
-    
+        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+
     # Generate a secure random token
     token_data = f"{subject}:{secrets.token_urlsafe(32)}"
-    
+
     to_encode = {
-        "exp": expire, 
-        "sub": str(subject), 
+        "exp": expire,
+        "sub": str(subject),
         "type": "refresh",
-        "token": token_data
+        "token": token_data,
     }
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

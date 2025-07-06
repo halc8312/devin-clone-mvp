@@ -4,8 +4,6 @@ from typing import AsyncGenerator, Generator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.pool import NullPool
 from httpx import AsyncClient
-from fastapi.testclient import TestClient
-import os
 
 from app.main import app
 from app.db.base import Base
@@ -15,7 +13,9 @@ from app.core.security import create_access_token, get_password_hash
 from app.models.user import User
 
 # Test database URL
-TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/devinclone_test"
+TEST_DATABASE_URL = (
+    "postgresql+asyncpg://postgres:postgres@localhost:5432/devinclone_test"
+)
 
 # Override settings for tests
 settings.DATABASE_URL = TEST_DATABASE_URL
@@ -39,13 +39,13 @@ async def db_engine():
         poolclass=NullPool,
         echo=False,
     )
-    
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield engine
-    
+
     await engine.dispose()
 
 
@@ -57,7 +57,7 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
         class_=AsyncSession,
         expire_on_commit=False,
     )
-    
+
     async with async_session_maker() as session:
         yield session
 
@@ -65,14 +65,15 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
 @pytest.fixture(scope="function")
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     """Create a test client with database override."""
+
     async def override_get_db():
         yield db_session
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
-    
+
     app.dependency_overrides.clear()
 
 
@@ -113,7 +114,7 @@ def auth_headers(test_user: User) -> dict:
 async def test_project(db_session: AsyncSession, test_user: User):
     """Create a test project."""
     from app.models.project import Project
-    
+
     project = Project(
         name="Test Project",
         description="Test project description",
@@ -131,7 +132,7 @@ async def test_project(db_session: AsyncSession, test_user: User):
 async def test_file(db_session: AsyncSession, test_project):
     """Create a test file."""
     from app.models.file import ProjectFile
-    
+
     file = ProjectFile(
         project_id=test_project.id,
         name="test.py",
@@ -154,31 +155,41 @@ async def test_file(db_session: AsyncSession, test_project):
 async def mock_anthropic_client(monkeypatch):
     """Mock Anthropic client for testing."""
     from unittest.mock import AsyncMock, MagicMock
-    
+
     mock_client = MagicMock()
     mock_messages = AsyncMock()
-    
+
     # Mock streaming response
     async def mock_stream():
         messages = [
-            {"type": "content_block_start", "content_block": {"type": "text", "text": ""}},
-            {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hello from Claude!"}},
+            {
+                "type": "content_block_start",
+                "content_block": {"type": "text", "text": ""},
+            },
+            {
+                "type": "content_block_delta",
+                "delta": {"type": "text_delta", "text": "Hello from Claude!"},
+            },
             {"type": "content_block_stop"},
         ]
         for msg in messages:
-            yield MagicMock(type=msg["type"], delta=msg.get("delta"), content_block=msg.get("content_block"))
-    
+            yield MagicMock(
+                type=msg["type"],
+                delta=msg.get("delta"),
+                content_block=msg.get("content_block"),
+            )
+
     mock_response = AsyncMock()
     mock_response.__aiter__ = mock_stream
     mock_messages.stream.return_value.__aenter__.return_value = mock_response
-    
+
     # Mock non-streaming response
     mock_messages.create.return_value = AsyncMock(
         content=[MagicMock(text="Generated code here")]
     )
-    
+
     mock_client.messages = mock_messages
-    
+
     monkeypatch.setattr("app.core.claude.AsyncAnthropic", lambda api_key: mock_client)
-    
+
     return mock_client

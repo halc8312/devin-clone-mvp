@@ -11,11 +11,11 @@ class ChatMessageBase(BaseModel):
     content: str = Field(..., min_length=1)
     role: MessageRole = MessageRole.USER
     file_references: Optional[List[UUID]] = None
-    
-    @validator('content')
+
+    @validator("content")
     def content_not_empty(cls, v):
         if not v or not v.strip():
-            raise ValueError('Message content cannot be empty')
+            raise ValueError("Message content cannot be empty")
         return v.strip()
 
 
@@ -29,7 +29,7 @@ class ChatMessage(ChatMessageBase):
     code_blocks: Optional[List[Dict[str, Any]]] = None
     token_count: Optional[int] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -51,7 +51,7 @@ class ChatSession(ChatSessionBase):
     project_id: UUID
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -72,11 +72,11 @@ class CodeGenerationRequest(BaseModel):
     context: Optional[str] = None
     existing_code: Optional[str] = None
     model_id: Optional[str] = None  # Claude model to use
-    
-    @validator('prompt')
+
+    @validator("prompt")
     def prompt_not_empty(cls, v):
         if not v or not v.strip():
-            raise ValueError('Prompt cannot be empty')
+            raise ValueError("Prompt cannot be empty")
         return v.strip()
 
 
@@ -87,7 +87,7 @@ class CodeGenerationResponse(BaseModel):
     target_file_path: Optional[str]
     tokens_used: Optional[int]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

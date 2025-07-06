@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 from datetime import datetime
 from uuid import UUID
 
@@ -14,7 +14,7 @@ from app.schemas.project import (
     ProjectCreate,
     ProjectUpdate,
     ProjectList,
-    ProjectStats
+    ProjectStats,
 )
 from app.core.cache import cache, cached, project_cache_key
 
@@ -34,14 +34,13 @@ async def read_projects(
     """
     # Calculate offset
     skip = (page - 1) * page_size
-    
+
     # Get total count
     count_result = await db.execute(
-        select(func.count(Project.id))
-        .where(Project.owner_id == current_user.id)
+        select(func.count(Project.id)).where(Project.owner_id == current_user.id)
     )
     total = count_result.scalar_one()
-    
+
     # Get projects
     result = await db.execute(
         select(Project)
@@ -51,18 +50,13 @@ async def read_projects(
         .order_by(Project.updated_at.desc())
     )
     projects = result.scalars().all()
-    
+
     # Update last accessed time for retrieved projects
     for project in projects:
         project.last_accessed_at = datetime.utcnow()
     await db.commit()
-    
-    return ProjectList(
-        projects=projects,
-        total=total,
-        page=page,
-        page_size=page_size
-    )
+
+    return ProjectList(projects=projects, total=total, page=page, page_size=page_size)
 
 
 @router.post("/", response_model=ProjectSchema)
@@ -77,18 +71,20 @@ async def create_project(
     """
     # Check project limit based on subscription
     count_result = await db.execute(
-        select(func.count(Project.id))
-        .where(Project.owner_id == current_user.id)
+        select(func.count(Project.id)).where(Project.owner_id == current_user.id)
     )
     current_project_count = count_result.scalar_one()
-    
+
     # Free users limited to 1 project, Pro users unlimited
-    if current_user.subscription_plan == SubscriptionPlan.FREE and current_project_count >= 1:
+    if (
+        current_user.subscription_plan == SubscriptionPlan.FREE
+        and current_project_count >= 1
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Free plan is limited to 1 project. Please upgrade to Pro."
+            detail="Free plan is limited to 1 project. Please upgrade to Pro.",
         )
-    
+
     # Set limits based on subscription
     if current_user.subscription_plan == SubscriptionPlan.FREE:
         max_files = 20
@@ -96,12 +92,12 @@ async def create_project(
     else:
         max_files = 500
         max_size_kb = 1048576  # 1GB
-    
+
     project = Project(
         **project_in.dict(),
         owner_id=current_user.id,
         max_files=max_files,
-        max_size_kb=max_size_kb
+        max_size_kb=max_size_kb,
     )
     db.add(project)
     await db.commit()
@@ -110,7 +106,9 @@ async def create_project(
 
 
 @router.get("/{project_id}", response_model=ProjectSchema)
-@cached(expire=300, key_func=lambda project_id, **kwargs: project_cache_key(str(project_id)))
+@cached(
+    expire=300, key_func=lambda project_id, **kwargs: project_cache_key(str(project_id))
+)
 async def read_project(
     *,
     db: AsyncSession = Depends(get_db),
@@ -122,24 +120,20 @@ async def read_project(
     """
     result = await db.execute(
         select(Project).where(
-            and_(
-                Project.id == project_id,
-                Project.owner_id == current_user.id
-            )
+            and_(Project.id == project_id, Project.owner_id == current_user.id)
         )
     )
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    
+
     # Update last accessed time
     project.last_accessed_at = datetime.utcnow()
     await db.commit()
-    
+
     return project
 
 
@@ -156,30 +150,26 @@ async def update_project(
     """
     result = await db.execute(
         select(Project).where(
-            and_(
-                Project.id == project_id,
-                Project.owner_id == current_user.id
-            )
+            and_(Project.id == project_id, Project.owner_id == current_user.id)
         )
     )
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    
+
     update_data = project_in.dict(exclude_unset=True)
     for field, value in update_data.items():
         setattr(project, field, value)
-    
+
     await db.commit()
     await db.refresh(project)
-    
+
     # Invalidate cache
     await cache.delete(project_cache_key(str(project_id)))
-    
+
     return project
 
 
@@ -195,29 +185,25 @@ async def delete_project(
     """
     result = await db.execute(
         select(Project).where(
-            and_(
-                Project.id == project_id,
-                Project.owner_id == current_user.id
-            )
+            and_(Project.id == project_id, Project.owner_id == current_user.id)
         )
     )
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    
+
     # Delete project (cascades to files and chats)
     await db.delete(project)
     await db.commit()
-    
+
     # Invalidate related caches
     await cache.delete(project_cache_key(str(project_id)))
     await cache.invalidate_pattern(f"file_tree:{project_id}*")
     await cache.invalidate_pattern(f"file:{project_id}:*")
-    
+
     return {"message": "Project deleted successfully"}
 
 
@@ -234,60 +220,51 @@ async def get_project_stats(
     # Verify project ownership
     result = await db.execute(
         select(Project).where(
-            and_(
-                Project.id == project_id,
-                Project.owner_id == current_user.id
-            )
+            and_(Project.id == project_id, Project.owner_id == current_user.id)
         )
     )
     project = result.scalar_one_or_none()
-    
+
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
-    
+
     # Get file statistics
     from app.models import ProjectFile
+
     file_result = await db.execute(
-        select(
-            func.count(ProjectFile.id),
-            func.sum(ProjectFile.size_bytes)
-        ).where(
-            and_(
-                ProjectFile.project_id == project_id,
-                ProjectFile.type == "file"
-            )
+        select(func.count(ProjectFile.id), func.sum(ProjectFile.size_bytes)).where(
+            and_(ProjectFile.project_id == project_id, ProjectFile.type == "file")
         )
     )
     total_files, total_size = file_result.one()
-    
+
     # Get language breakdown
     lang_result = await db.execute(
-        select(
-            ProjectFile.language,
-            func.count(ProjectFile.id)
-        ).where(
+        select(ProjectFile.language, func.count(ProjectFile.id))
+        .where(
             and_(
                 ProjectFile.project_id == project_id,
                 ProjectFile.type == "file",
-                ProjectFile.language.isnot(None)
+                ProjectFile.language.isnot(None),
             )
-        ).group_by(ProjectFile.language)
+        )
+        .group_by(ProjectFile.language)
     )
     language_breakdown = {lang: count for lang, count in lang_result}
-    
+
     # Get last activity
     activity_result = await db.execute(
-        select(func.max(ProjectFile.updated_at))
-        .where(ProjectFile.project_id == project_id)
+        select(func.max(ProjectFile.updated_at)).where(
+            ProjectFile.project_id == project_id
+        )
     )
     last_activity = activity_result.scalar_one_or_none() or project.updated_at
-    
+
     return ProjectStats(
         total_files=total_files or 0,
         total_size_kb=int((total_size or 0) / 1024),
         last_activity=last_activity,
-        language_breakdown=language_breakdown
+        language_breakdown=language_breakdown,
     )

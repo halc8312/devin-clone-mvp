@@ -23,18 +23,20 @@ class UserBase(BaseModel):
     email: EmailStr
     username: str
     full_name: Optional[str] = None
-    
+
     @field_validator("username")
     @classmethod
     def validate_username(cls, v):
         if not re.match(r"^[a-zA-Z0-9_-]{3,20}$", v):
-            raise ValueError("Username must be 3-20 characters long and contain only letters, numbers, underscores, and hyphens")
+            raise ValueError(
+                "Username must be 3-20 characters long and contain only letters, numbers, underscores, and hyphens"
+            )
         return v
 
 
 class UserCreate(UserBase):
     password: str
-    
+
     @field_validator("password")
     @classmethod
     def validate_password(cls, v):
@@ -64,7 +66,7 @@ class UserInDBBase(UserBase):
     tokens_limit: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 

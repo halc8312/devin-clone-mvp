@@ -13,26 +13,26 @@ class ProjectFileBase(BaseModel):
     type: FileType = FileType.FILE
     content: Optional[str] = None
     language: Optional[str] = Field(None, max_length=50)
-    
-    @validator('name')
+
+    @validator("name")
     def validate_name(cls, v):
         if not v or not v.strip():
-            raise ValueError('File name cannot be empty')
+            raise ValueError("File name cannot be empty")
         # Check for invalid characters
-        invalid_chars = ['/', '\\', '\0']
+        invalid_chars = ["/", "\\", "\0"]
         for char in invalid_chars:
             if char in v:
-                raise ValueError(f'File name cannot contain {char}')
+                raise ValueError(f"File name cannot contain {char}")
         return v.strip()
-    
-    @validator('path')
+
+    @validator("path")
     def validate_path(cls, v):
         if not v or not v.strip():
-            raise ValueError('File path cannot be empty')
+            raise ValueError("File path cannot be empty")
         # Normalize path separators
-        v = v.replace('\\', '/')
+        v = v.replace("\\", "/")
         # Remove leading slash
-        if v.startswith('/'):
+        if v.startswith("/"):
             v = v[1:]
         return v
 
@@ -77,7 +77,8 @@ class ProjectFileInDB(ProjectFileInDBBase):
 
 class ProjectFileTree(ProjectFile):
     """File tree representation with children"""
-    children: List['ProjectFileTree'] = []
+
+    children: List["ProjectFileTree"] = []
 
 
 ProjectFileTree.model_rebuild()  # Enable forward reference
@@ -85,6 +86,7 @@ ProjectFileTree.model_rebuild()  # Enable forward reference
 
 class ProjectFileList(BaseModel):
     """Response model for file list"""
+
     files: List[ProjectFile]
     total: int
     directories: int

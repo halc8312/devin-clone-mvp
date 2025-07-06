@@ -19,9 +19,9 @@ async def lifespan(app: FastAPI):
     # Create tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield
-    
+
     # Shutdown
     print("Shutting down...")
     await engine.dispose()
@@ -48,15 +48,18 @@ if settings.BACKEND_CORS_ORIGINS:
 # Include routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+
 # Root endpoint
 @app.get("/")
 async def root():
     return {"message": "Welcome to Devin Clone API", "version": settings.VERSION}
 
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
 
 # Custom exception handler
 @app.exception_handler(Exception)
@@ -65,13 +68,14 @@ async def global_exception_handler(request, exc):
         status_code=500,
         content={
             "detail": "Internal server error",
-            "message": str(exc) if settings.DEBUG else "An error occurred"
-        }
+            "message": str(exc) if settings.DEBUG else "An error occurred",
+        },
     )
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
