@@ -311,16 +311,16 @@ export function ClaudeModelSelector({ onModelChange }: ClaudeModelSelectorProps 
                   return acc
                 }, {} as Record<string, ClaudeModel[]>)
               ).map(([family, familyModels]) => (
-                <CommandGroup key={family} heading={family}>
+                <CommandGroup key={family}>
+                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">{family}</div>
                   {familyModels.map((model) => (
                     <CommandItem
                       key={model.model_id}
-                      value={model.model_id}
-                      onSelect={() => {
+                      onClick={() => {
                         setDefaultModel(model.model_id)
                         setOpen(false)
                       }}
-                      className="flex items-center justify-between p-3"
+                      className="flex items-center justify-between p-3 cursor-pointer"
                     >
                       <div className="flex items-center space-x-3">
                         {getModelIcon(model)}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -50,7 +50,7 @@ const FEATURES = {
   ],
 }
 
-export default function BillingPage() {
+function BillingPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -71,7 +71,7 @@ export default function BillingPage() {
         description: "サブスクリプションが正常に開始されました",
       })
       // Remove success parameter from URL
-      const newSearchParams = new URLSearchParams(searchParams)
+      const newSearchParams = new URLSearchParams(searchParams.toString())
       newSearchParams.delete("success")
       router.replace(`/settings/billing${newSearchParams.toString() ? `?${newSearchParams.toString()}` : ''}`)
     }
@@ -491,5 +491,13 @@ export default function BillingPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <BillingPageContent />
+    </Suspense>
   )
 }

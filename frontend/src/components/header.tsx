@@ -62,7 +62,7 @@ export function Header() {
           ) : session ? (
             <>
               <Badge variant="outline" className="hidden sm:flex">
-                {session.user.subscription_plan === "pro" ? "Pro" : "Free"}
+                {(session.user as any)?.subscription_plan === "pro" ? "Pro" : "Free"}
               </Badge>
               
               <DropdownMenu>

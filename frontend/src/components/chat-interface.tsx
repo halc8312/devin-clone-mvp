@@ -201,7 +201,7 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
   }
 
   function extractCodeBlocks(content: string): CodeBlock[] {
-    const pattern = /```(\w+)?\n(.*?)```/gs
+    const pattern = /```(\w+)?\n([\s\S]*?)```/g
     const blocks: CodeBlock[] = []
     let match
 
@@ -221,7 +221,7 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
     let blockIndex = 0
 
     // Split content by code blocks
-    const codeBlockPattern = /```(\w+)?\n(.*?)```/gs
+    const codeBlockPattern = /```(\w+)?\n([\s\S]*?)```/g
     let match
 
     while ((match = codeBlockPattern.exec(message.content)) !== null) {
@@ -262,7 +262,11 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
                 className="h-6 px-2 text-xs"
                 onClick={() => {
                   navigator.clipboard.writeText(code)
-                  setCopiedBlocks(new Set([...copiedBlocks, currentBlockIndex]))
+                  setCopiedBlocks(prev => {
+                    const next = new Set(prev)
+                    next.add(currentBlockIndex)
+                    return next
+                  })
                   setTimeout(() => {
                     setCopiedBlocks(prev => {
                       const next = new Set(prev)
@@ -280,17 +284,16 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
               </Button>
             </div>
           </div>
-          <SyntaxHighlighter
-            language={language}
-            style={vscDarkPlus}
-            customStyle={{
+          {(SyntaxHighlighter as any)({
+            language,
+            style: vscDarkPlus,
+            customStyle: {
               margin: 0,
               borderTopLeftRadius: 0,
               borderTopRightRadius: 0,
-            }}
-          >
-            {code}
-          </SyntaxHighlighter>
+            },
+            children: code
+          })}
         </div>
       )
 

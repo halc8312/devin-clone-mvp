@@ -1,5 +1,6 @@
 import { memo } from 'react'
-import type { Language } from 'prism-react-renderer'
+
+type Language = string
 
 // Memoized code highlighting for performance
 export const optimizeCodeHighlighting = {
