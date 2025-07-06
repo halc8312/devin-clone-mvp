@@ -32,6 +32,7 @@ stripe==7.9.0
 # Development
 pytest==7.4.4
 pytest-asyncio==0.23.3
+pytest-cov==4.0.0
 black==23.12.1
 ruff==0.1.14
 mypy==1.8.0
