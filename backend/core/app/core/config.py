@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
     
-    # Redis
-    REDIS_URL: str
+    # Redis (Optional for MVP)
+    REDIS_URL: str = ""
     
     # CORS
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
