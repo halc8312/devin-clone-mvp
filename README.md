@@ -44,7 +44,22 @@ devin-clone-mvp/
 - **Deployment**: Vercel (Frontend), Render.com (Backend)
 - **Payment**: Stripe Subscriptions
 
-## 🚀 MVP Quick Deploy (3 Steps!)
+## 🚀 MVP Quick Deploy
+
+### Option 1: Render.com (フロントエンド + バックエンド)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/halc8312/devin-clone-mvp)
+
+**ワンクリックデプロイ - 設定は ANTHROPIC_API_KEY のみ！**
+
+1. 上のボタンをクリック
+2. Render.comでリポジトリを接続
+3. `ANTHROPIC_API_KEY` を設定
+4. デプロイ完了！
+
+詳細: [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
+
+### Option 2: Vercel + Render (従来の方法)
 
 **Deploy to production in under 10 minutes with minimal setup:**
 

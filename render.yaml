@@ -12,7 +12,7 @@ services:
     name: devin-clone-api
     runtime: python
     rootDir: backend/core
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "pip install -r requirements.txt && pip install aiosqlite pydantic[email] aiofiles"
     startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       # Auto-configured values
@@ -32,11 +32,11 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false
       
-      # Auto-configured URLs (will be updated after Vercel deployment)
+      # Auto-configured URLs (updated for Render frontend)
       - key: FRONTEND_URL
-        value: https://your-app.vercel.app
+        value: https://devin-clone-frontend.onrender.com
       - key: BACKEND_CORS_ORIGINS
-        value: https://your-app.vercel.app
+        value: '["https://devin-clone-frontend.onrender.com"]'
       
       # MVP: Payment and OAuth disabled (no setup required)
       - key: STRIPE_SECRET_KEY
@@ -49,7 +49,29 @@ services:
         value: "false"
         
     autoDeploy: true
-    healthCheckPath: /api/v1/health
+    healthCheckPath: /health
+
+  # Frontend Service
+  - type: web
+    name: devin-clone-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://devin-clone-api.onrender.com
+      - key: NEXTAUTH_URL
+        value: https://devin-clone-frontend.onrender.com
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_ENABLE_PAYMENTS
+        value: "false"
+      - key: NEXT_PUBLIC_ENABLE_OAUTH
+        value: "false"
+    autoDeploy: true
 
 databases:
   # Auto-created PostgreSQL database (free tier)
