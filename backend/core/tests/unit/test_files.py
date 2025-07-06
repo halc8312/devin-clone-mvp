@@ -1,6 +1,6 @@
 import pytest
 
-from app.models.file import ProjectFile
+from app.models.project_file import ProjectFile
 
 
 @pytest.mark.asyncio

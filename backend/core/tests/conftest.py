@@ -14,7 +14,7 @@ from app.models.user import User
 
 # Test database URL
 TEST_DATABASE_URL = (
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/devinclone_test"
+    "postgresql+asyncpg://devin:devin123@localhost:5432/devin_clone_test"
 )
 
 # Override settings for tests
@@ -104,7 +104,7 @@ async def test_user(db_session: AsyncSession, test_user_data) -> User:
 
 
 @pytest.fixture
-def auth_headers(test_user: User) -> dict:
+async def auth_headers(test_user: User) -> dict:
     """Create authentication headers."""
     access_token = create_access_token(data={"sub": test_user.email})
     return {"Authorization": f"Bearer {access_token}"}
@@ -131,7 +131,7 @@ async def test_project(db_session: AsyncSession, test_user: User):
 @pytest.fixture
 async def test_file(db_session: AsyncSession, test_project):
     """Create a test file."""
-    from app.models.file import ProjectFile
+    from app.models.project_file import ProjectFile
 
     file = ProjectFile(
         project_id=test_project.id,
