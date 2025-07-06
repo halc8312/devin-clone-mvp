@@ -32,7 +32,7 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
             "redis": "unknown",
         },
     }
-    
+
     # Check database
     try:
         result = await db.execute(text("SELECT 1"))
@@ -41,7 +41,7 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         health_status["checks"]["database"] = f"unhealthy: {str(e)}"
         health_status["status"] = "degraded"
-    
+
     # Check Redis
     try:
         redis_client = await redis.from_url(settings.REDIS_URL)
@@ -51,5 +51,5 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         health_status["checks"]["redis"] = f"unhealthy: {str(e)}"
         health_status["status"] = "degraded"
-    
+
     return health_status

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { authApi } from "@/lib/api"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -38,24 +39,17 @@ export default function SignUpPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          full_name: fullName,
-          username: email.split("@")[0],
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.detail || "登録に失敗しました")
-      }
+      const requestData = {
+        email,
+        username: email.split("@")[0], // メールアドレスの@より前の部分をusernameとして使用
+        password,
+        full_name: fullName,
+      };
+      
+      console.log("Signup request data:", requestData);
+      
+      const data = await authApi.signup(requestData);
+      console.log("Signup response:", data);
 
       // 登録成功後、自動的にサインイン
       const result = await signIn("credentials", {

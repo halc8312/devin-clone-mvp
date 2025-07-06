@@ -1,19 +1,7 @@
 {
+  "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@devin_clone_api_url",
-    "NEXTAUTH_URL": "@devin_clone_frontend_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key"
-  },
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_API_URL": "@devin_clone_api_url",
-      "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",

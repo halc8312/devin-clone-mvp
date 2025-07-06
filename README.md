@@ -44,16 +44,50 @@ devin-clone-mvp/
 - **Deployment**: Vercel (Frontend), Render.com (Backend)
 - **Payment**: Stripe Subscriptions
 
-## 🚀 Quick Start
+## 🚀 MVP Quick Deploy
+
+### Option 1: Render.com (フロントエンド + バックエンド)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/halc8312/devin-clone-mvp)
+
+**ワンクリックデプロイ - 設定は ANTHROPIC_API_KEY のみ！**
+
+1. 上のボタンをクリック
+2. Render.comでリポジトリを接続
+3. `ANTHROPIC_API_KEY` を設定
+4. デプロイ完了！
+
+詳細: [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
+
+### Option 2: Vercel + Render (従来の方法)
+
+**Deploy to production in under 10 minutes with minimal setup:**
+
+### 📋 What You Need
+- [Anthropic API Key](https://console.anthropic.com/) (for AI features)
+- GitHub account
+- Render.com account (free)
+- Vercel account (free)
+
+### 🎯 One-Click Deploy
+1. **Fork this repo** to your GitHub
+2. **Render.com**: Connect repo → Add `ANTHROPIC_API_KEY` → Deploy
+3. **Vercel**: Import project → Add 3 env vars → Deploy
+
+**Total manual settings: 4 environment variables**
+
+👉 **[Complete MVP Deploy Guide](./QUICK_DEPLOY.md)**
+
+---
+
+## 🛠️ Local Development
 
 ### Prerequisites
 
 - Node.js 18+
 - Python 3.11+
 - PostgreSQL 14+
-- Redis 6+
-- Stripe account
-- Anthropic API key
+- Anthropic API Key
 
 ### Local Development
 

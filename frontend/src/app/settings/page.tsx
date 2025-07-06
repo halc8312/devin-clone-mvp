@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, User, CreditCard, Bell, Shield } from "lucide-react"
+import { Loader2, User, CreditCard, Bell, Shield, Brain } from "lucide-react"
+import { ClaudeModelSelector } from "@/components/claude-model-selector"
 
 export default function SettingsPage() {
   const { data: session } = useSession()
@@ -47,10 +48,14 @@ export default function SettingsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+        <TabsList className="grid w-full grid-cols-5 max-w-3xl">
           <TabsTrigger value="profile">
             <User className="mr-2 h-4 w-4" />
             プロフィール
+          </TabsTrigger>
+          <TabsTrigger value="ai-models">
+            <Brain className="mr-2 h-4 w-4" />
+            AIモデル
           </TabsTrigger>
           <TabsTrigger value="billing">
             <CreditCard className="mr-2 h-4 w-4" />
@@ -108,6 +113,67 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="ai-models" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Claude AIモデル設定</CardTitle>
+              <CardDescription>
+                使用するClaude AIモデルを選択・管理できます
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label className="text-base font-medium">現在のモデル</Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  チャットで使用するデフォルトのClaude AIモデルを選択
+                </p>
+                <ClaudeModelSelector />
+              </div>
+              
+              <div className="border-t pt-6">
+                <h3 className="text-base font-medium mb-2">モデル情報</h3>
+                <div className="grid gap-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-medium text-muted-foreground">最新モデル</p>
+                      <p>Claude 4 Opus・Sonnet (2025年5月リリース)</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-muted-foreground">新機能</p>
+                      <p>拡張思考・コンピューター操作・高度なコーディング</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-medium text-muted-foreground">コンテキスト</p>
+                      <p>200,000トークン (約150,000語)</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-muted-foreground">対応機能</p>
+                      <p>テキスト・画像・ツール使用・ファイル分析</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-6">
+                <h3 className="text-base font-medium mb-2">カスタムモデル追加</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Anthropicが新しいモデルをリリースした際は、モデル選択画面から手動で追加できます。
+                </p>
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <h4 className="font-medium mb-2">💡 ヒント</h4>
+                  <ul className="text-sm space-y-1 text-muted-foreground">
+                    <li>• 新しいモデルは通常、より高性能で効率的です</li>
+                    <li>• 用途に応じてOpus（高性能）、Sonnet（バランス）、Haiku（高速）を選択</li>
+                    <li>• 価格は入力・出力トークン数に基づいて計算されます</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="billing" className="space-y-4">
           <Card>
             <CardHeader>
@@ -129,9 +195,16 @@ export default function SettingsPage() {
                     <li>✓ 1プロジェクトまで</li>
                   </ul>
                 </div>
-                <Button className="w-full">
-                  プロプランにアップグレード
+                <Button 
+                  className="w-full" 
+                  disabled
+                  title="支払い機能は現在設定されていません"
+                >
+                  プロプランにアップグレード（準備中）
                 </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  ※ 支払い機能は現在準備中です
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { ClaudeModelSelector } from "@/components/claude-model-selector"
 
 interface ChatInterfaceProps {
   projectId: string
@@ -42,6 +43,7 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [copiedBlocks, setCopiedBlocks] = useState<Set<number>>(new Set())
+  const [selectedModelId, setSelectedModelId] = useState<string | null>(null)
 
   useEffect(() => {
     loadSessions()
@@ -129,7 +131,8 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
       const response = await chatApi.streamMessage(projectId, {
         message: messageContent,
         session_id: currentSessionId,
-        stream: true
+        stream: true,
+        model_id: selectedModelId || undefined
       })
 
       let assistantMessage: ChatMessage = {
@@ -318,14 +321,17 @@ export function ChatInterface({ projectId, onCodeInsert }: ChatInterfaceProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">AIアシスタント</CardTitle>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={createNewSession}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            新規チャット
-          </Button>
+          <div className="flex items-center space-x-2">
+            <ClaudeModelSelector onModelChange={setSelectedModelId} />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={createNewSession}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              新規チャット
+            </Button>
+          </div>
         </div>
       </CardHeader>
       

@@ -7,15 +7,13 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "pnpm --filter frontend dev",
-    "build": "pnpm --filter frontend build",
-    "lint": "pnpm --filter frontend lint",
-    "type-check": "pnpm --filter frontend type-check",
-    "test": "pnpm --filter frontend test"
+    "dev": "yarn workspace frontend dev",
+    "build": "yarn workspace frontend build",
+    "lint": "yarn workspace frontend lint",
+    "type-check": "yarn workspace frontend type-check",
+    "test": "yarn workspace frontend test"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
-  },
-  "packageManager": "pnpm@8.15.1"
+    "node": ">=20.0.0"
+  }
 }

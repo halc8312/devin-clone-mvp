@@ -1,0 +1,81 @@
+# Devin Clone MVP - One-Click Render.com Deployment
+# 
+# SETUP INSTRUCTIONS:
+# 1. Fork this repository to your GitHub account
+# 2. Connect your GitHub repo to Render.com
+# 3. Add ANTHROPIC_API_KEY in Render dashboard
+# 4. Deploy!
+
+services:
+  # Backend API Service
+  - type: web
+    name: devin-clone-api
+    runtime: python
+    rootDir: backend/core
+    buildCommand: "pip install -r requirements.txt && pip install aiosqlite pydantic[email] aiofiles"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      # Auto-configured values
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: devin-clone-db
+          property: connectionString
+      
+      # ONLY MANUAL SETTING REQUIRED:
+      # Add this in Render.com dashboard after deployment
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      
+      # Auto-configured URLs (updated for Render frontend)
+      - key: FRONTEND_URL
+        value: https://devin-clone-frontend.onrender.com
+      - key: BACKEND_CORS_ORIGINS
+        value: '["https://devin-clone-frontend.onrender.com"]'
+      
+      # MVP: Payment and OAuth disabled (no setup required)
+      - key: STRIPE_SECRET_KEY
+        value: ""
+      - key: STRIPE_WEBHOOK_SECRET
+        value: ""
+      - key: NEXT_PUBLIC_ENABLE_PAYMENTS
+        value: "false"
+      - key: NEXT_PUBLIC_ENABLE_OAUTH
+        value: "false"
+        
+    autoDeploy: true
+    healthCheckPath: /health
+
+  # Frontend Service
+  - type: web
+    name: devin-clone-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: "yarn install && yarn build"
+    startCommand: "yarn start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://devin-clone-api.onrender.com
+      - key: NEXTAUTH_URL
+        value: https://devin-clone-frontend.onrender.com
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_ENABLE_PAYMENTS
+        value: "false"
+      - key: NEXT_PUBLIC_ENABLE_OAUTH
+        value: "false"
+    autoDeploy: true
+
+databases:
+  # Auto-created PostgreSQL database (free tier)
+  - name: devin-clone-db
+    databaseName: devinclone
+    user: devinclone
+    plan: starter

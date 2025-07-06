@@ -1,3 +1,6 @@
+# MVP Configuration - Minimal setup for Render.com
+# Just connect your GitHub repo and set ANTHROPIC_API_KEY in the dashboard
+
 services:
   # Backend API Service
   - type: web
@@ -6,6 +9,7 @@ services:
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
+      # Auto-configured values
       - key: ENVIRONMENT
         value: production
       - key: DEBUG
@@ -16,45 +20,29 @@ services:
         fromDatabase:
           name: devin-clone-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: devin-clone-redis
-          property: connectionString
+      
+      # Only required manual setting - Add this in Render dashboard
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: STRIPE_SECRET_KEY
-        sync: false
-      - key: STRIPE_WEBHOOK_SECRET
-        sync: false
-      - key: STRIPE_PRICE_ID_PRO_MONTHLY
-        sync: false
-      - key: STRIPE_PRICE_ID_PRO_YEARLY
-        sync: false
+      
+      # Auto-configured URLs (update these after Vercel deployment)
       - key: FRONTEND_URL
-        value: https://devin-clone.vercel.app
+        value: https://your-app.vercel.app
       - key: BACKEND_CORS_ORIGINS
-        value: https://devin-clone.vercel.app,https://www.devin-clone.vercel.app
+        value: https://your-app.vercel.app
+      
+      # MVP: Disabled features (no setup required)
+      - key: NEXT_PUBLIC_ENABLE_PAYMENTS
+        value: false
+      - key: NEXT_PUBLIC_ENABLE_OAUTH
+        value: false
+        
     autoDeploy: true
     healthCheckPath: /api/v1/health
-    
-  # Background Worker (if needed)
-  - type: worker
-    name: devin-clone-worker
-    runtime: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python -m app.worker"
-    envVars:
-      - fromGroup: devin-clone-api
 
 databases:
+  # Auto-created PostgreSQL database
   - name: devin-clone-db
     databaseName: devinclone
     user: devinclone
     plan: starter
-    
-services:
-  - type: redis
-    name: devin-clone-redis
-    plan: starter
-    maxmemoryPolicy: allkeys-lru
