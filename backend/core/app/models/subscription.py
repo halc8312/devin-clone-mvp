@@ -5,7 +5,7 @@ from datetime import datetime
 import uuid
 import enum
 
-from app.db.base_class import Base
+from app.db.session import Base
 
 
 class SubscriptionStatus(str, enum.Enum):
@@ -108,7 +108,7 @@ class PriceProduct(Base):
     
     # Features
     features = Column(JSON, nullable=False, default=list)
-    metadata = Column(JSON, nullable=True)
+    product_metadata = Column(JSON, nullable=True)
     
     # Status
     active = Column(Boolean, default=True, nullable=False)

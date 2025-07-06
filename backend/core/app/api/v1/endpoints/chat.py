@@ -11,7 +11,7 @@ from sqlalchemy import select, and_, func
 
 from app.api import deps
 from app.db.session import get_db
-from app.models import User, Project, ChatSession, ChatMessage, CodeGeneration, MessageRole, ProjectFile
+from app.models import User, Project, ChatSession, ChatMessage, CodeGeneration, MessageRole, ProjectFile, ClaudeModel
 from app.schemas.chat import (
     ChatSession as ChatSessionSchema,
     ChatSessionCreate,
@@ -48,6 +48,42 @@ def extract_code_blocks(content: str) -> List[dict]:
         })
     
     return code_blocks
+
+
+async def get_claude_model(db: AsyncSession, model_id: str = None) -> str:
+    """Get Claude model ID to use for chat"""
+    if model_id:
+        # Check if specified model exists and is active
+        result = await db.execute(
+            select(ClaudeModel).where(
+                and_(
+                    ClaudeModel.model_id == model_id,
+                    ClaudeModel.is_active == True,
+                    ClaudeModel.is_deprecated == False
+                )
+            )
+        )
+        model = result.scalar_one_or_none()
+        if model:
+            return model.model_id
+    
+    # Get default model
+    result = await db.execute(
+        select(ClaudeModel).where(
+            and_(
+                ClaudeModel.is_default == True,
+                ClaudeModel.is_active == True,
+                ClaudeModel.is_deprecated == False
+            )
+        )
+    )
+    default_model = result.scalar_one_or_none()
+    
+    if default_model:
+        return default_model.model_id
+    
+    # Fallback to Claude 3.5 Sonnet if no default set
+    return "claude-3-5-sonnet-20241022"
 
 
 async def verify_project_access(
@@ -257,12 +293,16 @@ Current project context: {project.name} - {project.description or 'No descriptio
     if file_context:
         system_prompt += f"\n\nReferenced files:{file_context}"
     
+    # Get Claude model to use
+    model_to_use = await get_claude_model(db, message_in.model_id)
+    
     # Get AI response
     try:
         response = await claude_client.create_message(
             messages=messages,
             system=system_prompt,
-            max_tokens=4096
+            max_tokens=4096,
+            model=model_to_use
         )
         
         ai_content = response["content"][0]["text"]
@@ -359,13 +399,17 @@ async def stream_chat_response(
 Help the user with coding tasks, answer questions, and provide suggestions.
 Be concise but thorough. Use code examples when helpful."""
     
+    # Get Claude model to use
+    model_to_use = await get_claude_model(db, request.model_id)
+    
     async def generate():
         full_response = ""
         
         try:
             async for chunk in claude_client.create_message_stream(
                 messages=messages,
-                system=system_prompt
+                system=system_prompt,
+                model=model_to_use
             ):
                 full_response += chunk
                 yield f"data: {json.dumps({'content': chunk})}\n\n"

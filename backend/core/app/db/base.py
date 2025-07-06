@@ -5,4 +5,5 @@ from app.models.user import User  # noqa
 from app.models.session import Session  # noqa
 from app.models.project import Project  # noqa
 from app.models.project_file import ProjectFile  # noqa
-from app.models.chat import Chat  # noqa
+from app.models.chat import ChatSession, ChatMessage  # noqa
+from app.models.claude_models import ClaudeModel  # noqa

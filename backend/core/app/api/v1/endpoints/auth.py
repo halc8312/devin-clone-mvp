@@ -68,19 +68,19 @@ async def signup(
 @router.post("/signin", response_model=Token)
 async def signin(
     request: Request,
-    db: AsyncSession = Depends(get_db),
-    form_data: OAuth2PasswordRequestForm = Depends()
+    user_in: UserSignIn,
+    db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
-    OAuth2 compatible token login, get an access token for future requests
+    JSON compatible token login, get an access token for future requests
     """
     # Find user by email
     result = await db.execute(
-        select(User).where(User.email == form_data.username)
+        select(User).where(User.email == user_in.email)
     )
     user = result.scalar_one_or_none()
     
-    if not user or not security.verify_password(form_data.password, user.hashed_password):
+    if not user or not security.verify_password(user_in.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"

@@ -12,7 +12,7 @@ class PriceProductBase(BaseModel):
     description: Optional[str] = None
     amount: int = Field(..., gt=0)
     currency: str = Field(default="usd", max_length=3)
-    interval: str = Field(..., regex="^(month|year)$")
+    interval: str = Field(..., pattern="^(month|year)$")
     interval_count: int = Field(default=1, ge=1)
     features: List[str] = []
 

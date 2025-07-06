@@ -1,6 +1,6 @@
 import { getSession } from "next-auth/react"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
 interface ApiOptions extends RequestInit {
   requireAuth?: boolean
@@ -209,6 +209,7 @@ export interface LoginRequest {
 
 export interface SignupRequest {
   email: string
+  username: string
   password: string
   full_name: string
 }
@@ -291,6 +292,7 @@ export interface StreamingChatRequest {
   session_id: string
   file_references?: string[]
   stream?: boolean
+  model_id?: string
 }
 
 export const chatApi = {
@@ -306,10 +308,10 @@ export const chatApi = {
   getSession: (projectId: string, sessionId: string): Promise<ChatSessionWithMessages> =>
     fetchApi(`/api/v1/projects/${projectId}/chat/sessions/${sessionId}`),
     
-  sendMessage: (projectId: string, sessionId: string, content: string): Promise<ChatMessage> =>
+  sendMessage: (projectId: string, sessionId: string, content: string, modelId?: string): Promise<ChatMessage> =>
     fetchApi(`/api/v1/projects/${projectId}/chat/sessions/${sessionId}/messages`, {
       method: "POST",
-      body: JSON.stringify({ content, role: 'user' }),
+      body: JSON.stringify({ content, role: 'user', model_id: modelId }),
     }),
     
   streamMessage: async (projectId: string, data: StreamingChatRequest): Promise<Response> => {

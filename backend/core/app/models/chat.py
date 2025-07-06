@@ -5,7 +5,7 @@ from datetime import datetime
 import uuid
 import enum
 
-from app.db.base_class import Base
+from app.db.session import Base
 
 
 class MessageRole(str, enum.Enum):

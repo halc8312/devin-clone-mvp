@@ -20,7 +20,7 @@ class ChatMessageBase(BaseModel):
 
 
 class ChatMessageCreate(ChatMessageBase):
-    pass
+    model_id: Optional[str] = None  # Claude model to use
 
 
 class ChatMessage(ChatMessageBase):
@@ -71,6 +71,7 @@ class CodeGenerationRequest(BaseModel):
     target_file_path: Optional[str] = Field(None, max_length=1000)
     context: Optional[str] = None
     existing_code: Optional[str] = None
+    model_id: Optional[str] = None  # Claude model to use
     
     @validator('prompt')
     def prompt_not_empty(cls, v):
@@ -112,3 +113,4 @@ class StreamingChatRequest(BaseModel):
     session_id: UUID
     file_references: Optional[List[UUID]] = None
     stream: bool = True
+    model_id: Optional[str] = None  # Claude model to use
