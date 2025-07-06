@@ -195,9 +195,16 @@ export default function SettingsPage() {
                     <li>✓ 1プロジェクトまで</li>
                   </ul>
                 </div>
-                <Button className="w-full">
-                  プロプランにアップグレード
+                <Button 
+                  className="w-full" 
+                  disabled
+                  title="支払い機能は現在設定されていません"
+                >
+                  プロプランにアップグレード（準備中）
                 </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  ※ 支払い機能は現在準備中です
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -95,6 +95,12 @@ async def create_checkout_session(
     """
     Create a Stripe checkout session for subscription
     """
+    # Check if Stripe is configured
+    if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY == "":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service is not configured. Please contact support."
+        )
     # Check if user already has active subscription
     existing_sub = await db.execute(
         select(Subscription)
@@ -188,6 +194,12 @@ async def create_portal_session(
     """
     Create a Stripe customer portal session for subscription management
     """
+    # Check if Stripe is configured
+    if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY == "":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service is not configured. Please contact support."
+        )
     if not current_user.stripe_customer_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -221,6 +233,12 @@ async def cancel_subscription(
     """
     Cancel current subscription at period end
     """
+    # Check if Stripe is configured
+    if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY == "":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service is not configured. Please contact support."
+        )
     # Get active subscription
     result = await db.execute(
         select(Subscription)
@@ -271,6 +289,12 @@ async def reactivate_subscription(
     """
     Reactivate a canceled subscription
     """
+    # Check if Stripe is configured
+    if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY == "":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service is not configured. Please contact support."
+        )
     # Get canceled subscription
     result = await db.execute(
         select(Subscription)
@@ -359,6 +383,12 @@ async def stripe_webhook(
     """
     Handle Stripe webhook events
     """
+    # Check if Stripe is configured
+    if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY == "" or not settings.STRIPE_WEBHOOK_SECRET or settings.STRIPE_WEBHOOK_SECRET == "":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service is not configured. Please contact support."
+        )
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
     

@@ -15,13 +15,13 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = "your-secret-key-here-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite+aiosqlite:///./test.db"
     
     # Redis (Optional for MVP)
     REDIS_URL: str = ""
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
     
     # AI
-    ANTHROPIC_API_KEY: str
+    ANTHROPIC_API_KEY: str = "test-key-for-development"
     CLAUDE_MODEL: str = "claude-3-5-sonnet-20241022"
     
     # Stripe
